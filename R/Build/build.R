@@ -20,9 +20,21 @@
 # # qplot(x = month_year,y=AHRSWORKT,data = cps_data)
 # # 
 ##############################################################
-acs_data <- read_csv(here("Data/usa_00003.csv.gz"))
+acs_data <- read_csv(here("Data/usa_00004.csv.gz"))
 state_mapping <- read_csv(here("Data/state_mapping.csv"))
-acs_data <- inner_join(cps_data,state_mapping)
+acs_data <- inner_join(acs_data,state_mapping)
 
-ggplot(data = acs_data, aes(x = YEAR, y = UHRSWORK, color = ST_INC_TAX)) +
-  geom_smooth(method = "loess")
+#Might remove 2020 due to COVID need to do more research on when survey was collected
+acs_data <- acs_data %>% 
+  filter(YEAR != 2020)
+
+#cleaning data
+
+acs_data <- acs_data %>% 
+  filter(CLASSWKR == 2) %>% #removes self-employed
+  filter(UHRSWORK > 0) #removes workers with zero hours
+
+
+
+ggplot(data = acs_data, aes(x = YEAR, y = UHRSWORK, color = ST_INC_TAX,group = ST_INC_TAX)) +
+  geom_smooth(method="gam", formula = y ~ s(x, bs = "cs", k=5))
