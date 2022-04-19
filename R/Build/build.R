@@ -20,8 +20,9 @@
 # # qplot(x = month_year,y=AHRSWORKT,data = cps_data)
 # # 
 ##############################################################
-acs_data <- read_csv(here("Data/usa_00004.csv.gz"))
-state_mapping <- read_csv(here("Data/state_mapping.csv"))
+acs_data <- read_csv(here("Data/usa_00003.csv.gz"))
+state_mapping <- read_csv(here("Data/state_mapping.csv")) %>% 
+  mutate(ST_INC_TAX = as.factor(ST_INC_TAX))
 acs_data <- inner_join(acs_data,state_mapping)
 
 #Might remove 2020 due to COVID need to do more research on when survey was collected
@@ -36,5 +37,7 @@ acs_data <- acs_data %>%
 
 
 
-ggplot(data = acs_data, aes(x = YEAR, y = UHRSWORK, color = ST_INC_TAX,group = ST_INC_TAX)) +
-  geom_smooth(method="gam", formula = y ~ s(x, bs = "cs", k=5))
+plot_1 <- ggplot(data = acs_data, aes(x = YEAR, y = UHRSWORK, color = ST_INC_TAX,group = ST_INC_TAX)) +
+  geom_smooth(method="gam", formula = y ~ s(x, bs = "cs", k=5))+
+  geom_vline(xintercept = 2018,linetype = "dashed")+
+  theme_fivethirtyeight()
